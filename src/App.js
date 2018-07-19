@@ -1,6 +1,8 @@
 import React from 'react';
 import MessageItemView from './components/MessageItem.js';
 import DialogView from './components/DialogView.js';
+import NavBar from './components/NavBar';
+import { DIALOG_SHOW_STATUS } from './const';
 import './App.css';
 
 // const icon = require('./resource/icon_Good_B-2.png');
@@ -33,24 +35,94 @@ class App extends React.Component {
           time: '7-17 10:00',
         }
       ],
-      isDialogActive: false
+      isDialogActive: DIALOG_SHOW_STATUS.HIDE,
+      handleItemIndex: null,
+      showMultipleSelect: null,
     }
+    this.handleShowAddViewClick = this.handleShowAddViewClick.bind(this)
   }
 
   onItemClick = (message) => {
     console.log(message);
   }
 
-  handleAddItem = () => {
+  handleItemMoreClick = (index) => {
+    this.setState({
+      isDialogActive: DIALOG_SHOW_STATUS.SHOW_MORE_BTN,
+      handleItemIndex: index,
+    })
+  }
+
+  handleDeleteItem = () => {
+    const { handleItemIndex, messages } = this.state
+    const messageTmp = messages.slice()
+    messageTmp.splice(handleItemIndex, 1)
+    this.setState({
+      messages: messageTmp,
+      isDialogActive: DIALOG_SHOW_STATUS.HIDE,
+    })
+  }
+
+  handleMultipleClick = () => {
+    const { handleItemIndex } = this.state
+    this.setState({
+      showMultipleSelect: [handleItemIndex],
+      isDialogActive: DIALOG_SHOW_STATUS.HIDE,
+    })
+  }
+
+  handleSelectItem = index => {
+    const { showMultipleSelect } = this.state
+    const showMultipleSelectTmp = showMultipleSelect.slice()
+    const idx = showMultipleSelectTmp.findIndex(item => item === index)
+    if (idx >= 0) {
+      showMultipleSelectTmp.splice(idx, 1)
+    } else {
+      showMultipleSelectTmp.push(index)
+    }
+    this.setState({
+      showMultipleSelect: showMultipleSelectTmp,
+    })
+  }
+
+  handleDeleteMultiple = () => {
+    const { showMultipleSelect, messages } = this.state
+    const messagesTmp = messages.slice()
+    showMultipleSelect.forEach(item => {
+      messagesTmp.splice(item, 1)
+    })
+    this.setState({
+      messages: messagesTmp,
+      showMultipleSelect: null,
+    })
+  }
+
+  handleSetToTop = () => {
+    const { handleItemIndex, messages } = this.state
+    const messageTmp = messages.slice()
+    const message = messageTmp.splice(handleItemIndex, 1)
+    messageTmp.unshift(message.pop())
+    this.setState({
+      messages: messageTmp,
+      isDialogActive: DIALOG_SHOW_STATUS.HIDE,
+    })
+  }
+
+  handleShowAddViewClick() {
+    this.setState({
+      isDialogActive: DIALOG_SHOW_STATUS.SHOW_ADD_MESSAGE,
+    })
+  }
+
+  handleAddItem = item => {
     const newMessages = this.state.messages.slice();
     newMessages.unshift({
       icon: icon,
-      title: 'zhanglinxue',
-      descript: '哎呦不错',
-      time: '20180719'
+      ...item,
     });
     this.setState({
-      messages: newMessages
+      messages: newMessages,
+      isDialogActive: DIALOG_SHOW_STATUS.HIDE,
     });
   }
 
@@ -59,16 +131,39 @@ class App extends React.Component {
   }
 
   renderMessageList = () => {
+    const { showMultipleSelect } = this.state
     const messageViews = this.state.messages.map((item,i) => {
-      return <MessageItemView key={i} item={item} onClick={this.onItemClick}/>
+      return <MessageItemView
+        key={i}
+        item={item}
+        index={i}
+        onClick={this.onItemClick}
+        onItemMoreClick={this.handleItemMoreClick}
+        showMultipleSelect={showMultipleSelect}
+        onSelectItem={this.handleSelectItem}
+      />
     });
     return messageViews;
+  }
+
+  renderMultipleDeleteBtn() {
+    const { showMultipleSelect } = this.state
+    if (!Array.isArray(showMultipleSelect)) {
+      return null
+    }
+    return (
+      <div>
+        <div className="multipleDeleteBtn" onClick={this.handleDeleteMultiple}>删除</div>
+      </div>
+    )
   }
 
   render() {
     return (
       <div>
+        <NavBar onShowAddViewClick={this.handleShowAddViewClick} />
         { this.renderMessageList() }
+        {this.renderMultipleDeleteBtn()}
         <nav className="chat-nav">
           <div className="chat-nav__item" onClick={this.handleAddItem}>
             <img className="chat-nav__item__icon" src={icon} alt="" />
@@ -87,7 +182,14 @@ class App extends React.Component {
             <div className="chat-nav__item__name">我</div>
           </div>
         </nav>
-        <DialogView isActive={this.state.isDialogActive} onCloseClick={this.handleShowDialog} />
+        <DialogView
+          isActive={this.state.isDialogActive}
+          onCloseClick={this.handleShowDialog}
+          handleAddItem={this.handleAddItem}
+          handleDeleteItem={this.handleDeleteItem}
+          handleSetToTop={this.handleSetToTop}
+          handleMultipleClick={this.handleMultipleClick}
+        />
       </div>
     );
   }

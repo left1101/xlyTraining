@@ -1,51 +1,112 @@
-import React, { Component } from 'react';
-import './DialogView.css';
+import React  from 'react'
+import './DialogView.css'
+import { DIALOG_SHOW_STATUS } from '../const'
 
-export default class DialogView extends Component {
-  componentWillMount() {
-    console.log('componentWillMount');
+export default class DialogView extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      title: '',
+      descript: '',
+      time: ''
+    }
+    this.handleTitleChange = this.handleTitleChange.bind(this)
+    this.handleDescChange = this.handleDescChange.bind(this)
+    this.handleTimeChange = this.handleTimeChange.bind(this)
+    this.handleCloseDialog = this.handleCloseDialog.bind(this)
+    this.handleConfirmAddClick = this.handleConfirmAddClick.bind(this)
   }
 
-  componentDidMount() {
-    console.log('componentDidMount');
+  handleTitleChange(event) {
+    this.setState({
+      title: event.target.value
+    })
   }
 
-  componentWillReceiveProps() {
-    console.log('componentWillReceiveProps');
+  handleDescChange(event) {
+    this.setState({
+      descript: event.target.value
+    })
   }
 
-  shouldComponentUpdate() {
-    console.log('shouldComponentUpdate');
-    return true;
+  handleTimeChange(event) {
+    this.setState({
+      time: event.target.value
+    })
   }
 
-  componentWillUpdate() {
-    console.log('componentWillUpdate');
+  handleCloseDialog() {
+    const { onCloseClick } = this.props
+    onCloseClick && onCloseClick(false)
   }
 
-  componentDidUpdate() {
-    console.log('componentDidUpdate');
+  handleConfirmAddClick() {
+    const { title, descript, time } = this.state
+    const { handleAddItem } = this.props
+    if (!title || !descript || !time) {
+      return
+    }
+    handleAddItem && handleAddItem({
+      title,
+      descript,
+      time,
+    })
   }
 
-  handleClose = () => {
-    this.props.onCloseClick(false);
+  renderAddMessageView() {
+    return (
+      <div className="ViewContent">
+        <div>
+          标题：<input onChange={this.handleTitleChange}/>
+        </div>
+        <div>
+          描述：<input onChange={this.handleDescChange} />
+        </div>
+        <div>
+          时间：<input onChange={this.handleTimeChange} />
+        </div>
+        <div className="confirmBtn" onClick={this.handleConfirmAddClick}>确认</div>
+      </div>
+    )
+  }
+
+  renderMoreBtnView() {
+    const { handleDeleteItem, handleSetToTop, handleMultipleClick } = this.props
+    return (
+      <div className="ViewContent">
+        <div className="MoreBtnItem" onClick={handleSetToTop}>置顶</div>
+        <div className="MoreBtnItem" onClick={handleDeleteItem}>删除</div>
+        <div className="MoreBtnItem" onClick={handleMultipleClick}>多选</div>
+      </div>
+    )
+  }
+
+  renderCloseBtn() {
+    return (
+      <div className="closeBtn" onClick={this.handleCloseDialog}>Close</div>
+    )
+  }
+
+  renderContent() {
+    const { isActive } = this.props
+    switch (isActive) {
+      case DIALOG_SHOW_STATUS.SHOW_ADD_MESSAGE:
+        return this.renderAddMessageView()
+      case DIALOG_SHOW_STATUS.SHOW_MORE_BTN:
+        return this.renderMoreBtnView()
+      default:
+        return null
+    }
   }
 
   render() {
-    console.log('component render');
-    const { isActive } = this.props;
-
-    if (!isActive) {
-      return null;
-    }
+    const { isActive } = this.props
+    if (!isActive) { return null }
     return (
-      <div className="mask-ctn">
-        <div className="close-btn" onClick={this.handleClose}>close</div>
-        <div className="dialog-ctn">
-
-        </div>
+      <div className="DialogView">
+        {this.renderCloseBtn()}
+        {this.renderContent()}
       </div>
-    );
+    )
   }
 }
-

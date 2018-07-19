@@ -1,27 +1,49 @@
-.mask-ctn {
+.DialogView {
   position: fixed;
   top: 0;
-  bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(0, 0, 0, .6)
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1;
 }
 
-.dialog-ctn {
-  position: absolute;
-  top: 50%;
+.ViewContent {
+  width: 300px;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   left: 50%;
-  width: 200px;
-  height: 300px;
-  margin-left: -100px;
-  margin-top: -150px;
-  background-color: #fff;
-  border-radius: 4px;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.close-btn {
+.confirmBtn {
+  text-align: right;
+  margin-top: 10px;
+  color: #ffffff;
+  padding: 5px 20px;
+  background-color: #000000;
+}
+
+.closeBtn {
+  padding: 5px;
   position: absolute;
-  right: 10px;
-  top: 10px;
-  color: #fff;
+  top: 65px;
+  right: 20px;
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.MoreBtnItem {
+  padding: 5px 50px;
+  border: 1px solid #000000;
+  color: #000000;
+  background-color: #ffffff;
+  margin-top: 10px;
 }
