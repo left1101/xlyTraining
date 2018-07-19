@@ -39,7 +39,6 @@ class App extends React.Component {
       handleItemIndex: null,
       showMultipleSelect: null,
     }
-    this.handleShowAddViewClick = this.handleShowAddViewClick.bind(this)
   }
 
   onItemClick = (message) => {
@@ -108,7 +107,7 @@ class App extends React.Component {
     })
   }
 
-  handleShowAddViewClick() {
+  handleShowAddViewClick = () => {
     this.setState({
       isDialogActive: DIALOG_SHOW_STATUS.SHOW_ADD_MESSAGE,
     })
