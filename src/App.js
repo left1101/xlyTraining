@@ -1,8 +1,10 @@
 import React from 'react';
+import { connect } from 'react-redux'
 import MessageItemView from './components/MessageItem.js';
 import DialogView from './components/DialogView.js';
 import NavBar from './components/NavBar';
 import { DIALOG_SHOW_STATUS } from './const';
+import { acAdd } from './actions/index'
 import './App.css';
 
 // const icon = require('./resource/icon_Good_B-2.png');
@@ -41,6 +43,11 @@ class App extends React.Component {
     }
   }
 
+  componentDidMount() {
+    const { dispatch } = this.props
+    dispatch(acAdd(3))
+  }
+
   onItemClick = (message) => {
     console.log(message);
   }
@@ -53,9 +60,9 @@ class App extends React.Component {
   }
 
   handleDeleteItem = () => {
-    const { handleItemIndex, messages } = this.state
-    const messageTmp = messages.slice()
-    messageTmp.splice(handleItemIndex, 1)
+    // const { handleItemIndex, messages } = this.state
+    const messageTmp = this.state.messages.slice()
+    messageTmp.splice(this.state.handleItemIndex, 1)
     this.setState({
       messages: messageTmp,
       isDialogActive: DIALOG_SHOW_STATUS.HIDE,
@@ -114,7 +121,7 @@ class App extends React.Component {
   }
 
   handleAddItem = item => {
-    const newMessages = this.state.messages.slice();
+    const newMessages = this.state.messages.slice()
     newMessages.unshift({
       icon: icon,
       ...item,
@@ -194,4 +201,17 @@ class App extends React.Component {
   }
 }
 
-export default App;
+function mapStateToProps(state) {
+  console.log(state)
+  return {
+    state
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    dispatch
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
