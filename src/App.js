@@ -3,49 +3,18 @@ import { connect } from 'react-redux'
 import MessageItemView from './components/MessageItem.js';
 import DialogView from './components/DialogView.js';
 import NavBar from './components/NavBar';
+import ChatNav from './components/ChatNav';
 import { DIALOG_SHOW_STATUS } from './const';
-import { acAdd } from './actions/index'
+import { acSetChatMessages, setChatSelectIdx, setChatMultipleSelect } from './actions/index';
 import './App.css';
-
-// const icon = require('./resource/icon_Good_B-2.png');
-
 import icon from './resource/icon_Good_B-2.png';
 
 class App extends React.Component {
-
   constructor(props){
     super(props);
-
     this.state = {
-      messages: [
-        {
-          icon: icon,
-          title: '小年糕',
-          descript: 'hello 小年糕',
-          time: '7-18 11:14'
-        },
-        {
-          icon: icon,
-          title: '小板凳',
-          descript: 'hello 小板凳',
-          time: '7-18 11:15',
-        },
-        {
-          icon: icon,
-          title: '小豆包',
-          descript: 'hi 小豆包',
-          time: '7-17 10:00',
-        }
-      ],
       isDialogActive: DIALOG_SHOW_STATUS.HIDE,
-      handleItemIndex: null,
-      showMultipleSelect: null,
     }
-  }
-
-  componentDidMount() {
-    const { dispatch } = this.props
-    dispatch(acAdd(3))
   }
 
   onItemClick = (message) => {
@@ -53,32 +22,33 @@ class App extends React.Component {
   }
 
   handleItemMoreClick = (index) => {
+    const { dispatch } = this.props
+    dispatch(setChatSelectIdx(index))
     this.setState({
       isDialogActive: DIALOG_SHOW_STATUS.SHOW_MORE_BTN,
-      handleItemIndex: index,
     })
   }
 
   handleDeleteItem = () => {
-    // const { handleItemIndex, messages } = this.state
-    const messageTmp = this.state.messages.slice()
-    messageTmp.splice(this.state.handleItemIndex, 1)
+    const { messages, handleItemIndex, dispatch } = this.props
+    const messageTmp = messages.slice()
+    messageTmp.splice(handleItemIndex, 1)
+    dispatch(acSetChatMessages(messageTmp))
     this.setState({
-      messages: messageTmp,
       isDialogActive: DIALOG_SHOW_STATUS.HIDE,
     })
   }
 
   handleMultipleClick = () => {
-    const { handleItemIndex } = this.state
+    const { handleItemIndex, dispatch } = this.props
+    dispatch(setChatMultipleSelect([handleItemIndex]))
     this.setState({
-      showMultipleSelect: [handleItemIndex],
       isDialogActive: DIALOG_SHOW_STATUS.HIDE,
     })
   }
 
   handleSelectItem = index => {
-    const { showMultipleSelect } = this.state
+    const { showMultipleSelect, dispatch } = this.props
     const showMultipleSelectTmp = showMultipleSelect.slice()
     const idx = showMultipleSelectTmp.findIndex(item => item === index)
     if (idx >= 0) {
@@ -86,30 +56,27 @@ class App extends React.Component {
     } else {
       showMultipleSelectTmp.push(index)
     }
-    this.setState({
-      showMultipleSelect: showMultipleSelectTmp,
-    })
+    dispatch(setChatMultipleSelect(showMultipleSelectTmp))
   }
 
   handleDeleteMultiple = () => {
-    const { showMultipleSelect, messages } = this.state
+    const { showMultipleSelect, messages, dispatch } = this.props
     const messagesTmp = messages.slice()
-    showMultipleSelect.forEach(item => {
+    let showMultipleSelectTmp = showMultipleSelect.slice()
+    showMultipleSelectTmp = showMultipleSelectTmp.sort((a, b) => b - a)
+    showMultipleSelectTmp.forEach(item => {
       messagesTmp.splice(item, 1)
     })
-    this.setState({
-      messages: messagesTmp,
-      showMultipleSelect: null,
-    })
+    dispatch(acSetChatMessages(messagesTmp))
   }
 
   handleSetToTop = () => {
-    const { handleItemIndex, messages } = this.state
+    const { handleItemIndex, messages, dispatch } = this.props
     const messageTmp = messages.slice()
     const message = messageTmp.splice(handleItemIndex, 1)
     messageTmp.unshift(message.pop())
+    dispatch(acSetChatMessages(messageTmp))
     this.setState({
-      messages: messageTmp,
       isDialogActive: DIALOG_SHOW_STATUS.HIDE,
     })
   }
@@ -121,13 +88,14 @@ class App extends React.Component {
   }
 
   handleAddItem = item => {
-    const newMessages = this.state.messages.slice()
+    const { messages, dispatch } = this.props
+    const newMessages = messages.slice()
     newMessages.unshift({
       icon: icon,
       ...item,
     });
+    dispatch(acSetChatMessages(newMessages))
     this.setState({
-      messages: newMessages,
       isDialogActive: DIALOG_SHOW_STATUS.HIDE,
     });
   }
@@ -137,8 +105,8 @@ class App extends React.Component {
   }
 
   renderMessageList = () => {
-    const { showMultipleSelect } = this.state
-    const messageViews = this.state.messages.map((item,i) => {
+    const { messages, showMultipleSelect } = this.props
+    return messages.map((item,i) => {
       return <MessageItemView
         key={i}
         item={item}
@@ -149,11 +117,10 @@ class App extends React.Component {
         onSelectItem={this.handleSelectItem}
       />
     });
-    return messageViews;
   }
 
   renderMultipleDeleteBtn() {
-    const { showMultipleSelect } = this.state
+    const { showMultipleSelect } = this.props
     if (!Array.isArray(showMultipleSelect)) {
       return null
     }
@@ -165,31 +132,15 @@ class App extends React.Component {
   }
 
   render() {
+    const { isDialogActive } = this.state
     return (
       <div>
         <NavBar onShowAddViewClick={this.handleShowAddViewClick} />
-        { this.renderMessageList() }
+        {this.renderMessageList()}
         {this.renderMultipleDeleteBtn()}
-        <nav className="chat-nav">
-          <div className="chat-nav__item" onClick={this.handleAddItem}>
-            <img className="chat-nav__item__icon" src={icon} alt="" />
-            <div className="chat-nav__item__name">微信</div>
-          </div>
-          <div className="chat-nav__item">
-            <img className="chat-nav__item__icon" src={icon} alt="" />
-            <div className="chat-nav__item__name">通讯录</div>
-          </div>
-          <div className="chat-nav__item">
-            <img className="chat-nav__item__icon" src={icon} alt="" />
-            <div className="chat-nav__item__name">发现</div>
-          </div>
-          <div className="chat-nav__item" onClick={this.handleShowDialog.bind(this, true)}>
-            <img className="chat-nav__item__icon" src={icon} alt="" />
-            <div className="chat-nav__item__name">我</div>
-          </div>
-        </nav>
+        <ChatNav />
         <DialogView
-          isActive={this.state.isDialogActive}
+          isActive={isDialogActive}
           onCloseClick={this.handleShowDialog}
           handleAddItem={this.handleAddItem}
           handleDeleteItem={this.handleDeleteItem}
@@ -202,16 +153,9 @@ class App extends React.Component {
 }
 
 function mapStateToProps(state) {
-  console.log(state)
   return {
-    state
+    ...state
   }
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    dispatch
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(mapStateToProps)(App);
