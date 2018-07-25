@@ -74,7 +74,10 @@ class App extends React.Component {
     const { handleItemIndex, messages, dispatch } = this.props
     const messageTmp = messages.slice()
     const message = messageTmp.splice(handleItemIndex, 1)
-    messageTmp.unshift(message.pop())
+    messageTmp.unshift({
+      ...message.pop(),
+      isToTop: true,
+    })
     dispatch(acSetChatMessages(messageTmp))
     this.setState({
       isDialogActive: DIALOG_SHOW_STATUS.HIDE,
@@ -85,13 +88,20 @@ class App extends React.Component {
     this.setState({
       isDialogActive: DIALOG_SHOW_STATUS.SHOW_ADD_MESSAGE,
     })
-  }
+  };
 
   handleAddItem = item => {
-    const { messages, dispatch } = this.props
-    const newMessages = messages.slice()
-    newMessages.unshift({
+    const { messages, dispatch } = this.props;
+    const newMessages = messages.slice();
+    let firstNotTopIdx = 0;
+    newMessages.forEach((item, idx) => {
+      if (item.isToTop) {
+        firstNotTopIdx = idx
+      }
+    });
+    newMessages.splice(firstNotTopIdx + 1, 0, {
       icon: icon,
+      isToTop: false,
       ...item,
     });
     dispatch(acSetChatMessages(newMessages))

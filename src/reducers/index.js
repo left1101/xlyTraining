@@ -6,17 +6,20 @@ function index(state = {
     icon: icon,
     title: '小年糕',
     descript: 'hello 小年糕',
-    time: '7-18 11:14'
+    time: '7-18 11:14',
+    isToTop: false,
   }, {
     icon: icon,
     title: '小板凳',
     descript: 'hello 小板凳',
     time: '7-18 11:15',
+    isToTop: false,
   }, {
     icon: icon,
     title: '小豆包',
     descript: 'hi 小豆包',
     time: '7-17 10:00',
+    isToTop: false,
   }],
   handleItemIndex: null,
   showMultipleSelect: null,
