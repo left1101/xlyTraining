@@ -1,13 +1,15 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { createStore } from 'redux'
+import React from 'react'
+import ReactDOM from 'react-dom'
+import { createStore, applyMiddleware } from 'redux'
+import { createLogger } from 'redux-logger'
 import { Provider } from 'react-redux'
 import index from './reducers/index'
 import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 
-const store = createStore(index)
+const logger = createLogger();
+const store = createStore(index, applyMiddleware(logger))
 
 ReactDOM.render(
   <Provider store={store}>

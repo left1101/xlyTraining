@@ -94,6 +94,7 @@ class App extends React.Component {
     const { messages, dispatch } = this.props;
     const newMessages = messages.slice();
     let firstNotTopIdx = 0;
+    newMessages.findIndex()
     newMessages.forEach((item, idx) => {
       if (item.isToTop) {
         firstNotTopIdx = idx
