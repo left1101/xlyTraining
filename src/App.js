@@ -93,8 +93,7 @@ class App extends React.Component {
   handleAddItem = item => {
     const { messages, dispatch } = this.props;
     const newMessages = messages.slice();
-    let firstNotTopIdx = 0;
-    newMessages.findIndex()
+    let firstNotTopIdx = -1;
     newMessages.forEach((item, idx) => {
       if (item.isToTop) {
         firstNotTopIdx = idx
@@ -169,4 +168,10 @@ function mapStateToProps(state) {
   }
 }
 
-export default connect(mapStateToProps)(App);
+function mapDispatchToProps(dispatch) {
+  return {
+    dispatch
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
