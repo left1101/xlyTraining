@@ -1,12 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
 import MessageItemView from './components/MessageItem.js';
 import DialogView from './components/DialogView.js';
 import NavBar from './components/NavBar';
 import ChatNav from './components/ChatNav';
 import { DIALOG_SHOW_STATUS } from './const';
-import { acSetChatMessages, setChatSelectIdx, setChatMultipleSelect } from './actions/index';
 import './App.css';
+import * as messageActionsCreators from './actions/index'
 import icon from './resource/icon_Good_B-2.png';
 
 class App extends React.Component {
@@ -22,33 +23,33 @@ class App extends React.Component {
   }
 
   handleItemMoreClick = (index) => {
-    const { dispatch } = this.props
-    dispatch(setChatSelectIdx(index))
+    const { messageActions } = this.props
+    messageActions.setChatSelectIdx(index)
     this.setState({
       isDialogActive: DIALOG_SHOW_STATUS.SHOW_MORE_BTN,
     })
   }
 
   handleDeleteItem = () => {
-    const { messages, handleItemIndex, dispatch } = this.props
+    const { messages, handleItemIndex, messageActions } = this.props
     const messageTmp = messages.slice()
     messageTmp.splice(handleItemIndex, 1)
-    dispatch(acSetChatMessages(messageTmp))
+    messageActions.acSetChatMessages(messageTmp)
     this.setState({
       isDialogActive: DIALOG_SHOW_STATUS.HIDE,
     })
   }
 
   handleMultipleClick = () => {
-    const { handleItemIndex, dispatch } = this.props
-    dispatch(setChatMultipleSelect([handleItemIndex]))
+    const { handleItemIndex, messageActions } = this.props
+    messageActions.setChatMultipleSelect([handleItemIndex])
     this.setState({
       isDialogActive: DIALOG_SHOW_STATUS.HIDE,
     })
   }
 
   handleSelectItem = index => {
-    const { showMultipleSelect, dispatch } = this.props
+    const { showMultipleSelect, messageActions } = this.props
     const showMultipleSelectTmp = showMultipleSelect.slice()
     const idx = showMultipleSelectTmp.findIndex(item => item === index)
     if (idx >= 0) {
@@ -56,29 +57,29 @@ class App extends React.Component {
     } else {
       showMultipleSelectTmp.push(index)
     }
-    dispatch(setChatMultipleSelect(showMultipleSelectTmp))
+    messageActions.setChatMultipleSelect(showMultipleSelectTmp)
   }
 
   handleDeleteMultiple = () => {
-    const { showMultipleSelect, messages, dispatch } = this.props
+    const { showMultipleSelect, messages, messageActions } = this.props
     const messagesTmp = messages.slice()
     let showMultipleSelectTmp = showMultipleSelect.slice()
     showMultipleSelectTmp = showMultipleSelectTmp.sort((a, b) => b - a)
     showMultipleSelectTmp.forEach(item => {
       messagesTmp.splice(item, 1)
     })
-    dispatch(acSetChatMessages(messagesTmp))
+    messageActions.acSetChatMessages(messagesTmp)
   }
 
   handleSetToTop = () => {
-    const { handleItemIndex, messages, dispatch } = this.props
+    const { handleItemIndex, messages, messageActions } = this.props
     const messageTmp = messages.slice()
     const message = messageTmp.splice(handleItemIndex, 1)
     messageTmp.unshift({
       ...message.pop(),
       isToTop: true,
     })
-    dispatch(acSetChatMessages(messageTmp))
+    messageActions.acSetChatMessages(messageTmp)
     this.setState({
       isDialogActive: DIALOG_SHOW_STATUS.HIDE,
     })
@@ -91,7 +92,7 @@ class App extends React.Component {
   };
 
   handleAddItem = item => {
-    const { messages, dispatch } = this.props;
+    const { messages, messageActions } = this.props;
     const newMessages = messages.slice();
     let firstNotTopIdx = -1;
     newMessages.forEach((item, idx) => {
@@ -104,7 +105,7 @@ class App extends React.Component {
       isToTop: false,
       ...item,
     });
-    dispatch(acSetChatMessages(newMessages))
+    messageActions.acSetChatMessages(newMessages)
     this.setState({
       isDialogActive: DIALOG_SHOW_STATUS.HIDE,
     });
@@ -163,14 +164,16 @@ class App extends React.Component {
 }
 
 function mapStateToProps(state) {
+  const { message, showDialog } = state
   return {
-    ...state
+    ...message,
+    ...showDialog,
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    dispatch
+    messageActions: bindActionCreators(messageActionsCreators, dispatch),
   }
 }
 
